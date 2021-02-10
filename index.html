@@ -3,7 +3,7 @@
    const REWARD_CYCLE_LENGTH = 2100;
    const PREPARE_PHASE_LENGTH = 100;
    function main() {
-      fetch("https://blockchain.info/latestblock")
+      fetch("https://api.blockcypher.com/v1/btc/main")
         .then(resp => resp.json())
         .then(result => {
           let height = result.height;
