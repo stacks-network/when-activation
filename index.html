@@ -1,0 +1,28 @@
+<script>
+   const START_HEIGHT = 666050;
+   const REWARD_CYCLE_LENGTH = 2100;
+   const PREPARE_PHASE_LENGTH = 100;
+   function main() {
+      fetch("https://blockchain.info/latestblock")
+        .then(resp => resp.json())
+        .then(result => {
+          let height = result.height;
+          let current_cycle = (height - START_HEIGHT) / REWARD_CYCLE_LENGTH;
+          let next_cycle_start = (REWARD_CYCLE_LENGTH * (current_cycle + 1)) + START_HEIGHT;
+          let next_cycle_prep_start = next_cycle_start - PREPARE_PHASE_LENGTH;
+          let time_left = Math.round(11 * (next_cycle_prep_start - height) / 60, 2)
+          document.getElementById("height").innerHTML = `<b>${height}<b>`;
+          document.getElementById("cycle_number").innerHTML = `<b>${current_cycle}<b>`;
+          document.getElementById("next_reward").innerHTML = `<b>${next_cycle_start}<b>`;
+          document.getElementById("next_prepare").innerHTML = `<b>${next_cycle_prep_start}<b>`;
+          document.getElementById("time_left").innerHTML = `<b>${time_left}<b>`;
+
+       })
+   }
+</script>
+<h1>When Rewards?</h1>
+<p>Current block is <span id="height"></span></p>
+<p>Current cycle is <span id="cycle_number"></span></p>
+<p>Next cycle begins paying rewards at block <span id="next_reward"></span></p>
+<p>Eligible stackers must lock at least before block <span id="next_prepare"></span></p>
+<p>If BTC blocks are ~11 minutes, you must stack within <span id="time_left"></span> hours</p>
