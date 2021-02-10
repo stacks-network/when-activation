@@ -7,7 +7,7 @@
         .then(resp => resp.json())
         .then(result => {
           let height = result.height;
-          let current_cycle = (height - START_HEIGHT) / REWARD_CYCLE_LENGTH;
+          let current_cycle = Math.floor((height - START_HEIGHT) / REWARD_CYCLE_LENGTH);
           let next_cycle_start = (REWARD_CYCLE_LENGTH * (current_cycle + 1)) + START_HEIGHT;
           let next_cycle_prep_start = next_cycle_start - PREPARE_PHASE_LENGTH;
           let time_left = Math.round(11 * (next_cycle_prep_start - height) / 60, 2)
