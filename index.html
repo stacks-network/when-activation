@@ -10,7 +10,7 @@
           let current_cycle = Math.floor((height - START_HEIGHT) / REWARD_CYCLE_LENGTH);
           let next_cycle_start = (REWARD_CYCLE_LENGTH * (current_cycle + 1)) + START_HEIGHT;
           let next_cycle_prep_start = next_cycle_start - PREPARE_PHASE_LENGTH;
-          let time_left = Math.round(11 * (next_cycle_prep_start - height) / 60, 2)
+          let time_left = parseFloat(11 * (next_cycle_prep_start - height) / 60).toFixed(2);
           document.getElementById("height").innerHTML = `<b>${height}<b>`;
           document.getElementById("cycle_number").innerHTML = `<b>${current_cycle}<b>`;
           document.getElementById("next_reward").innerHTML = `<b>${next_cycle_start}<b>`;
