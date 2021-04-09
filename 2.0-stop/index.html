@@ -6,7 +6,7 @@
       const current_date = new Date(current.time);
 
       if (current_height >= HEIGHT_2_1) {
-        document.getElementById("main").innerHTML = `Stacks 2.1 height reached!`;
+        document.getElementById("main").innerHTML = `Stacks 2.0 stop height reached!`;
       } else {
         let approximation_height = current_height - (HEIGHT_2_1 - current_height);
         const prior = await (await fetch(`https://api.blockcypher.com/v1/btc/main/blocks/${approximation_height}?txstart=1&limit=1`)).json();
@@ -24,11 +24,11 @@
    }
    main();
 </script>
-<h1>When 2.1?</h1>
+<h1>When 2.0 Stop?</h1>
 <div id="main">
 <p>Current block is <span id="current_block"></span>.</p>
-<p>A first-order estimation of 2.1 update time is: <span id="expected_date"></span>.</p>
+<p>A first-order estimation of 2.0 stopping time is: <span id="expected_date"></span>.</p>
 <p></p>
-<p>Stacks 2.1 upgrade height is <span id="blocks_to_go"></span> blocks away.</p>
+<p>Stacks 2.0 stop height (Bitcoin block 700,000) is <span id="blocks_to_go"></span> blocks away.</p>
 <p>That many blocks ago was height = <span id="used_block"></span> which occured at <span id="used_block_time"></span>.</p>
 </div>
