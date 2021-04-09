@@ -1,0 +1,34 @@
+<script>
+   const HEIGHT_2_1 = 700000;
+   async function main() {
+      const current = await (await fetch("https://api.blockcypher.com/v1/btc/main")).json();
+      const current_height = current.height;
+      const current_date = new Date(current.time);
+
+      if (current_height >= HEIGHT_2_1) {
+        document.getElementById("main").innerHTML = `Stacks 2.1 height reached!`;
+      } else {
+        let approximation_height = current_height - (HEIGHT_2_1 - current_height);
+        const prior = await (await fetch(`https://api.blockcypher.com/v1/btc/main/blocks/${approximation_height}?txstart=1&limit=1`)).json();
+        const prior_date = new Date(prior.time);
+
+        const seconds_delta = current_date - prior_date;
+        const expected_date = new Date(current_date.getTime() + seconds_delta);
+
+        document.getElementById("current_block").innerHTML = `<b>${current_height}</b>`;
+        document.getElementById("expected_date").innerHTML = `<b>${expected_date}</b>`;
+        document.getElementById("blocks_to_go").innerHTML = `<b>${HEIGHT_2_1 - current_height}</b>`;
+        document.getElementById("used_block").innerHTML = `<b>${approximation_height}</b>`;
+        document.getElementById("used_block_time").innerHTML = `<b>${prior_date}</b>`;
+      }
+   }
+   main();
+</script>
+<h1>When 2.1?</h1>
+<div id="main">
+<p>Current block is <span id="current_block"></span>.</p>
+<p>A first-order estimation of 2.1 update time is: <span id="expected_date"></span>.</p>
+<p></p>
+<p>Stacks 2.1 upgrade height is <span id="blocks_to_go"></span> blocks away.</p>
+<p>That many blocks ago was height = <span id="used_block"></span> which occured at <span id="used_block_time"></span>.</p>
+</div>
