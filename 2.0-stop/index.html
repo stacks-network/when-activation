@@ -1,5 +1,5 @@
 <script>
-   const HEIGHT_2_1 = 700000;
+   const HEIGHT_2_1 = 713000;
    async function main() {
       const current = await (await fetch("https://api.blockcypher.com/v1/btc/main")).json();
       const current_height = current.height;
@@ -20,6 +20,7 @@
         document.getElementById("blocks_to_go").innerHTML = `<b>${HEIGHT_2_1 - current_height}</b>`;
         document.getElementById("used_block").innerHTML = `<b>${approximation_height}</b>`;
         document.getElementById("used_block_time").innerHTML = `<b>${prior_date}</b>`;
+        document.getElementById("time_ago").innerHTML = `<b>${Math.floor(seconds_delta / 3600.0 / 10)/ 100.0}</b>`;
       }
    }
    main();
@@ -27,8 +28,8 @@
 <h1>When 2.0 Stop?</h1>
 <div id="main">
 <p>Current block is <span id="current_block"></span>.</p>
-<p>A first-order estimation of 2.0 stopping time is: <span id="expected_date"></span>.</p>
+<p>A first-order estimation of 2.05 epoch start is: <span id="expected_date"></span>.</p>
 <p></p>
-<p>Stacks 2.0 stop height (Bitcoin block 700,000) is <span id="blocks_to_go"></span> blocks away.</p>
-<p>That many blocks ago was height = <span id="used_block"></span> which occured at <span id="used_block_time"></span>.</p>
+<p>Stacks 2.05 epoch start (Bitcoin block 713,000) is <span id="blocks_to_go"></span> blocks away.</p>
+<p>That many blocks ago was height = <span id="used_block"></span> which occured at <span id="used_block_time"></span>, <span id="time_ago"></span> hours ago.</p>
 </div>
