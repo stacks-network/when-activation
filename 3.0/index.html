@@ -1,0 +1,44 @@
+<script>
+   const HEIGHT_3_0 = 867867;
+   async function main() {
+      const current = await (await fetch("https://api.blockcypher.com/v1/btc/main")).json();
+      const current_height = current.height;
+      const current_date = new Date(current.time);
+
+      if (current_height >= HEIGHT_3_0) {
+        document.getElementById("main").innerHTML = `Stacks 3.0 epoch height reached!`;
+      } else {
+        let approximation_height = current_height - (HEIGHT_3_0 - current_height);
+        const prior = await (await fetch(`https://api.blockcypher.com/v1/btc/main/blocks/${approximation_height}?txstart=1&limit=1`)).json();
+        const prior_date = new Date(prior.time);
+
+        let second_approximation_height = current_height - 4 * (HEIGHT_3_0 - current_height);
+        const second_prior = await (await fetch(`https://api.blockcypher.com/v1/btc/main/blocks/${second_approximation_height}?txstart=1&limit=1`)).json();
+        const second_prior_date = new Date(second_prior.time);
+
+        const seconds_delta = current_date - prior_date;
+        const second_seconds_delta = (current_date - second_prior_date)/4;
+        const expected_seconds_delta = (seconds_delta + second_seconds_delta) / 2;
+
+        const expected_date = new Date(current_date.getTime() + expected_seconds_delta);
+
+        document.getElementById("block_target").innerHTML = `<b>${HEIGHT_3_0}</b>`;
+        document.getElementById("current_block").innerHTML = `<b>${current_height}</b>`;
+        document.getElementById("expected_date").innerHTML = `<b>${expected_date}</b>`;
+        document.getElementById("blocks_to_go").innerHTML = `<b>${HEIGHT_3_0 - current_height}</b>`;
+        document.getElementById("used_block").innerHTML = `<b>${approximation_height}</b>`;
+        document.getElementById("used_block_time").innerHTML = `<b>${prior_date}</b>`;
+        document.getElementById("time_ago").innerHTML = `<b>${Math.floor(seconds_delta / 3600.0 / 10)/ 100.0}</b>`;
+      }
+   }
+   main();
+</script>
+<h1>Wen 3.0 Instantiate?</h1>
+<div id="main">
+<p>Current block is <span id="current_block"></span>.</p>
+<p>A first-order estimation of 3.0 epoch start is: <span id="expected_date"></span>.</p>
+<p></p>
+<p>Stacks 3.0 epoch start (bitcoin block <span id="block_target"></span>) is <span id="blocks_to_go"></span> blocks away.</p>
+<p></p>
+<p>That many blocks ago was height = <span id="used_block"></span> which occurred at <span id="used_block_time"></span>, <span id="time_ago"></span> hours ago.</p>
+</div>
