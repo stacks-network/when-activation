@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bitcoin Block Height Estimator</title>
+  </head>
+  <body>
+    <h1>Bitcoin Block Height Estimation</h1>
+    <div id="main">
+      <p>Target block height: <span id="block_target"></span>.</p>
+      <p>Current block is: <span id="current_block"></span>.</p>
+      <p>
+        A first-order estimation of target block time is:
+        <span id="expected_date"></span>.
+      </p>
+      <p></p>
+      <p>The target block is <span id="blocks_to_go"></span> blocks away.</p>
+      <p></p>
+      <p>
+        That many blocks ago was height = <span id="used_block"></span>, which
+        occurred at <span id="used_block_time"></span>,
+        <span id="time_ago"></span> hours ago.
+      </p>
+    </div>
+    <script>
+      async function main() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetHeight = parseInt(urlParams.get("height"), 10);
+
+        if (isNaN(targetHeight)) {
+          document.getElementById("main").innerHTML =
+            "Error: No valid height provided in the URL.";
+          return;
+        }
+
+        const response = await (
+          await fetch("https://api.blockcypher.com/v1/btc/main")
+        ).json();
+        const currentHeight = response.height;
+        const currentDate = new Date(response.time);
+
+        document.getElementById("block_target").innerText = targetHeight;
+
+        if (currentHeight >= targetHeight) {
+          document.getElementById(
+            "main"
+          ).innerHTML = `The target block height <b>${targetHeight}</b> has already been reached!`;
+        } else {
+          const blocksToGo = targetHeight - currentHeight;
+
+          let approximationHeight = currentHeight - blocksToGo;
+          const prior = await (
+            await fetch(
+              `https://api.blockcypher.com/v1/btc/main/blocks/${approximationHeight}?txstart=1&limit=1`
+            )
+          ).json();
+          const priorDate = new Date(prior.time);
+
+          let secondApproximationHeight = currentHeight - 4 * blocksToGo;
+          const secondPrior = await (
+            await fetch(
+              `https://api.blockcypher.com/v1/btc/main/blocks/${secondApproximationHeight}?txstart=1&limit=1`
+            )
+          ).json();
+          const secondPriorDate = new Date(secondPrior.time);
+
+          const secondsDelta = currentDate - priorDate;
+          const secondSecondsDelta = (currentDate - secondPriorDate) / 4;
+          const expectedSecondsDelta = (secondsDelta + secondSecondsDelta) / 2;
+
+          const expectedDate = new Date(
+            currentDate.getTime() + expectedSecondsDelta
+          );
+
+          document.getElementById("current_block").innerText = currentHeight;
+          document.getElementById("expected_date").innerText = expectedDate;
+          document.getElementById("blocks_to_go").innerText = blocksToGo;
+          document.getElementById("used_block").innerText = approximationHeight;
+          document.getElementById("used_block_time").innerText = priorDate;
+          document.getElementById("time_ago").innerText =
+            Math.floor(secondsDelta / 3600.0 / 10) / 100.0;
+        }
+      }
+
+      main();
+    </script>
+  </body>
+</html>
