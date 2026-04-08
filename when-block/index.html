@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>When Block?</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <style>
+      .input-section {
+        margin: 1.5rem 0;
+      }
+      #block-input {
+        font-size: 1.2rem;
+        padding: 0.5rem;
+        width: 150px;
+        text-align: center;
+      }
+      #check-btn {
+        font-size: 1.2rem;
+        padding: 0.5rem 1rem;
+        margin-left: 0.5rem;
+        cursor: pointer;
+      }
+      #error {
+        color: #c00;
+        margin-top: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>When Block?</h1>
+    <div class="input-section">
+      <label for="block-input">Target block height:</label>
+      <input type="number" id="block-input" placeholder="e.g. 900000" />
+      <button id="check-btn">Check</button>
+    </div>
+    <div id="error" hidden></div>
+    <div id="main" hidden>
+      <p>Target block height: <span id="block_target"></span>.</p>
+      <p>Current block is: <span id="current_block"></span>.</p>
+      <p>
+        Estimated arrival time:
+        <span id="expected_date"></span>.
+      </p>
+      <p></p>
+      <p>The target block is <span id="blocks_to_go"></span> blocks away.</p>
+      <p></p>
+      <p>
+        That many blocks ago was height = <span id="used_block"></span>, which
+        occurred at <span id="used_block_time"></span>,
+        <span id="time_ago"></span> hours ago.
+      </p>
+    </div>
+    <script>
+      async function checkBlock(targetHeight) {
+        const mainDiv = document.getElementById("main");
+        const errorDiv = document.getElementById("error");
+
+        mainDiv.setAttribute("hidden", "");
+        errorDiv.setAttribute("hidden", "");
+
+        if (isNaN(targetHeight) || targetHeight <= 0) {
+          errorDiv.innerText = "Please enter a valid block height.";
+          errorDiv.removeAttribute("hidden");
+          return;
+        }
+
+        const response = await (
+          await fetch("https://api.blockcypher.com/v1/btc/main")
+        ).json();
+        const currentHeight = response.height;
+        const currentDate = new Date(response.time);
+
+        document.getElementById("block_target").innerText = targetHeight;
+
+        if (currentHeight >= targetHeight) {
+          document.getElementById("current_block").innerText = currentHeight;
+          document.getElementById("expected_date").innerHTML =
+            "<b>Already reached!</b>";
+          document.getElementById("blocks_to_go").innerText = 0;
+          document.getElementById("used_block").innerText = "N/A";
+          document.getElementById("used_block_time").innerText = "N/A";
+          document.getElementById("time_ago").innerText = "N/A";
+          mainDiv.removeAttribute("hidden");
+        } else {
+          const blocksToGo = targetHeight - currentHeight;
+
+          let approximationHeight = currentHeight - blocksToGo;
+          const prior = await (
+            await fetch(
+              `https://api.blockcypher.com/v1/btc/main/blocks/${approximationHeight}?txstart=1&limit=1`
+            )
+          ).json();
+          const priorDate = new Date(prior.time);
+
+          let secondApproximationHeight = currentHeight - 4 * blocksToGo;
+          const secondPrior = await (
+            await fetch(
+              `https://api.blockcypher.com/v1/btc/main/blocks/${secondApproximationHeight}?txstart=1&limit=1`
+            )
+          ).json();
+          const secondPriorDate = new Date(secondPrior.time);
+
+          const secondsDelta = currentDate - priorDate;
+          const secondSecondsDelta = (currentDate - secondPriorDate) / 4;
+          const expectedSecondsDelta = (secondsDelta + secondSecondsDelta) / 2;
+
+          const expectedDate = new Date(
+            currentDate.getTime() + expectedSecondsDelta
+          );
+
+          document.getElementById("current_block").innerText = currentHeight;
+          document.getElementById("expected_date").innerText = expectedDate;
+          document.getElementById("blocks_to_go").innerText = blocksToGo;
+          document.getElementById("used_block").innerText = approximationHeight;
+          document.getElementById("used_block_time").innerText = priorDate;
+          document.getElementById("time_ago").innerText =
+            Math.floor(secondsDelta / 3600.0 / 10) / 100.0;
+
+          mainDiv.removeAttribute("hidden");
+        }
+      }
+
+      // Handle button click
+      document.getElementById("check-btn").addEventListener("click", () => {
+        const targetHeight = parseInt(
+          document.getElementById("block-input").value,
+          10
+        );
+        checkBlock(targetHeight);
+      });
+
+      // Handle Enter key
+      document
+        .getElementById("block-input")
+        .addEventListener("keypress", (e) => {
+          if (e.key === "Enter") {
+            const targetHeight = parseInt(
+              document.getElementById("block-input").value,
+              10
+            );
+            checkBlock(targetHeight);
+          }
+        });
+
+      // Check for URL parameter on load
+      const urlParams = new URLSearchParams(window.location.search);
+      const heightParam = urlParams.get("block");
+      if (heightParam) {
+        const targetHeight = parseInt(heightParam, 10);
+        document.getElementById("block-input").value = targetHeight;
+        checkBlock(targetHeight);
+      }
+    </script>
+  </body>
+</html>
