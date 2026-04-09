@@ -56,6 +56,8 @@
         const mainDiv = document.getElementById("main");
         const errorDiv = document.getElementById("error");
 
+        const mainEndpoint = "https://api.blockcypher.com/v1/btc/main";
+
         mainDiv.setAttribute("hidden", "");
         errorDiv.setAttribute("hidden", "");
 
@@ -65,9 +67,14 @@
           return;
         }
 
-        const response = await (
-          await fetch("https://api.blockcypher.com/v1/btc/main")
-        ).json();
+        let response;
+        try {
+          response = await (await fetch(mainEndpoint)).json();
+        } catch (e) {
+          errorDiv.innerText = "Failed to fetch blockchain data.";
+          errorDiv.removeAttribute("hidden");
+          return;
+        }
         const currentHeight = response.height;
         const currentDate = new Date(response.time);
 
@@ -85,20 +92,34 @@
         } else {
           const blocksToGo = targetHeight - currentHeight;
 
-          let approximationHeight = currentHeight - blocksToGo;
-          const prior = await (
-            await fetch(
-              `https://api.blockcypher.com/v1/btc/main/blocks/${approximationHeight}?txstart=1&limit=1`
-            )
-          ).json();
+          let approximationHeight = Math.max(1, currentHeight - blocksToGo);
+          let prior;
+          try {
+            prior = await (
+              await fetch(
+                `${mainEndpoint}/blocks/${approximationHeight}?txstart=1&limit=1`
+              )
+            ).json();
+          } catch (e) {
+            errorDiv.innerText = "Failed to fetch blockchain data.";
+            errorDiv.removeAttribute("hidden");
+            return;
+          }
           const priorDate = new Date(prior.time);
 
-          let secondApproximationHeight = currentHeight - 4 * blocksToGo;
-          const secondPrior = await (
-            await fetch(
-              `https://api.blockcypher.com/v1/btc/main/blocks/${secondApproximationHeight}?txstart=1&limit=1`
-            )
-          ).json();
+          let secondApproximationHeight = Math.max(1, currentHeight - 4 * blocksToGo);
+          let secondPrior;
+          try {
+            secondPrior = await (
+              await fetch(
+                `${mainEndpoint}/blocks/${secondApproximationHeight}?txstart=1&limit=1`
+              )
+            ).json();
+          } catch (e) {
+            errorDiv.innerText = "Failed to fetch blockchain data.";
+            errorDiv.removeAttribute("hidden");
+            return;
+          }
           const secondPriorDate = new Date(secondPrior.time);
 
           const secondsDelta = currentDate - priorDate;
