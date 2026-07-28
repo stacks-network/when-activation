@@ -1,5 +1,12 @@
 /* Stacks Labs Design System — colors & type tokens.
  *
+ * Source: Claude Design export "Stacks Labs Design System"
+ *         (stacks-labs-design-system-019df1fa-8a60-736e-a745-ae215681f946),
+ *         tokens/tokens.css — synced 2026-07-28.
+ * To re-sync, diff only the token body, which is unmodified:
+ *         diff <(sed -n '/^:root {/,$p' upstream/tokens.css) \
+ *              <(sed -n '/^:root {/,$p' assets/tokens.css)
+ *
  * Trimmed copy of the design system's tokens/tokens.css. Everything from :root
  * onward is byte-identical to the original; only the @font-face block above it
  * differs, cut down to the four faces this site actually renders:
@@ -8,6 +15,9 @@
  *   Matter Mono 400     block heights, timestamps, countdown
  *   Matter Mono 500     uppercase mono eyebrows
  *   Instrument Sans     body copy and labels (400-700 covers the 400/500 we use)
+ *
+ * MatterSQMono-Medium is .woff rather than .woff2 because that is the only format
+ * shipped upstream; it is the primary source for weight 500, not a fallback.
  *
  * Dropped: the legacy .woff fallbacks for Matter and Matter Mono, Instrument
  * Sans italic (no italics on the page), and Open Sauce Sans (only ever a
