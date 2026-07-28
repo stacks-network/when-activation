@@ -6,10 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Wen 4.0 HardFork?</title>
 
-  <link rel="stylesheet" href="../assets/tokens.css" />
-
   <script>
-    // Follow the OS theme. The design system keys dark mode off [data-theme].
+    // Follow the OS theme. The design system keys dark mode off [data-theme], so it
+    // needs a bridge. Runs before the stylesheet link so it is not serialised behind
+    // that request; it reads no computed style, so it does not need the CSS.
     (() => {
       const q = matchMedia("(prefers-color-scheme: dark)");
       const apply = () => document.documentElement.dataset.theme = q.matches ? "dark" : "light";
@@ -18,7 +18,16 @@
     })();
   </script>
 
+  <!-- The 88px hero headline is the page's first meaningful paint. -->
+  <link rel="preload" href="../assets/fonts/matter-regular.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="../assets/tokens.css" />
+
   <style>
+    :root {
+      color-scheme: light dark;   /* so UA-painted surfaces follow the theme too */
+      --gutter: 40px;             /* horizontal padding shared by every card section */
+    }
+
     * { box-sizing: border-box; }
 
     [hidden] { display: none !important; }
@@ -26,9 +35,8 @@
     body {
       margin: 0;
       padding: 56px 24px;
-      font-family: var(--font-body);
+      /* Deliberately one tier darker than the token default — the card sits on it. */
       background: var(--surface-fifth);
-      color: var(--text-primary);
     }
 
     :focus-visible {
@@ -80,37 +88,17 @@
       letter-spacing: var(--ls-slight);
     }
 
-    .card > header nav {
-      display: flex;
-      align-items: center;
-      gap: 22px;
+    .epoch-label {
       font-size: var(--fs-sm);
-      white-space: nowrap;
-    }
-
-    .card > header nav a {
-      color: var(--text-secondary);
-      text-decoration: none;
-      transition: color 150ms ease-out;
-    }
-
-    .card > header nav a[aria-current] {
-      color: var(--text-primary);
       font-weight: var(--fw-medium);
-    }
-
-    .card > header nav a:hover {
-      color: var(--text-interactive-hover);
+      color: var(--text-primary);
+      white-space: nowrap;
     }
 
     /* ---------- Hero ---------- */
 
     .hero {
-      padding: 56px 40px 44px;
-    }
-
-    .hero.divided {
-      border-bottom: 1px solid var(--border-secondary);
+      padding: 56px var(--gutter) 44px;
     }
 
     .eyebrow {
@@ -225,8 +213,8 @@
     /* ---------- Progress ---------- */
 
     .progress {
-      padding: 26px 40px;
-      border-bottom: 1px solid var(--border-secondary);
+      padding: 26px var(--gutter);
+      border-top: 1px solid var(--border-secondary);
     }
 
     .progress .head {
@@ -288,10 +276,7 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 12px;
-      padding: 24px 40px 28px;
-    }
-
-    .tiles.divided {
+      padding: 24px var(--gutter) 28px;
       border-top: 1px solid var(--border-secondary);
     }
 
@@ -325,22 +310,9 @@
 
     .foot {
       border-top: 1px solid var(--border-secondary);
-      padding: 16px 40px;
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
+      padding: 16px var(--gutter);
       font-size: var(--fs-xs);
       color: var(--text-secondary);
-    }
-
-    .foot a {
-      color: var(--text-secondary);
-      text-decoration: none;
-      transition: color 150ms ease-out;
-    }
-
-    .foot a:hover {
-      color: var(--text-interactive-hover);
     }
 
     /* ---------- Badges ---------- */
@@ -385,12 +357,12 @@
     /* ---------- Responsive ---------- */
 
     @media (max-width: 860px) {
+      :root { --gutter: 24px; }
       body { padding: 24px 16px; }
       .card > header { padding: 0 16px; }
-      .hero { padding: 36px 24px 28px; }
-      .progress { padding: 20px 24px; }
-      .tiles { grid-template-columns: 1fr; padding: 20px 24px 24px; }
-      .foot { padding: 16px 24px; flex-direction: column; gap: 6px; }
+      .hero { padding: 36px var(--gutter) 28px; }
+      .progress { padding: 20px var(--gutter); }
+      .tiles { grid-template-columns: 1fr; padding: 20px var(--gutter) 24px; }
       .split { flex-direction: column; align-items: stretch; gap: 26px; }
       .progress .head { flex-direction: column; align-items: flex-start; gap: 4px; }
       .progress .head .r { text-align: left; }
@@ -411,31 +383,20 @@
         <img src="../assets/stx-glyph.svg" alt="" />
         <span>Wen 4.0?</span>
       </div>
-      <nav>
-        <a href="./" aria-current="page">Epoch 4.0</a>
-        <a href="../">Past epochs</a>
-      </nav>
+      <span class="epoch-label">Epoch 4.0</span>
     </header>
 
     <!-- ===== Loading ===== -->
     <div id="state-loading">
       <div class="hero">
         <div class="sk" style="height: 12px; width: min(180px, 55%);"></div>
-        <div style="margin-top: 20px;">
-          <div class="sk" style="height: 72px; width: min(520px, 92%); border-radius: var(--radius-sm);"></div>
-        </div>
-        <div style="margin-top: 20px;">
-          <div class="sk" style="height: 14px; width: min(260px, 70%);"></div>
-        </div>
+        <div class="sk" style="height: 72px; width: min(520px, 92%); border-radius: var(--radius-sm); margin-top: 20px;"></div>
+        <div class="sk" style="height: 14px; width: min(260px, 70%); margin-top: 20px;"></div>
         <div class="split">
           <div style="flex: 1;">
             <div class="sk" style="height: 40px; width: min(340px, 80%); border-radius: var(--radius-sm);"></div>
-            <div style="margin-top: 14px;">
-              <div class="sk" style="height: 10px; width: min(420px, 95%);"></div>
-            </div>
-            <div style="margin-top: 6px;">
-              <div class="sk" style="height: 10px; width: min(300px, 75%);"></div>
-            </div>
+            <div class="sk" style="height: 10px; width: min(420px, 95%); margin-top: 14px;"></div>
+            <div class="sk" style="height: 10px; width: min(300px, 75%); margin-top: 6px;"></div>
           </div>
           <div class="actions">
             <div class="sk" style="height: 44px; width: 160px; border-radius: var(--radius-md);"></div>
@@ -443,7 +404,7 @@
           </div>
         </div>
       </div>
-      <div style="padding: 26px 40px; border-top: 1px solid var(--border-secondary);">
+      <div class="progress">
         <div class="sk" style="height: 10px; width: 100%;"></div>
         <div class="loadnote">reading the bitcoin tip…</div>
       </div>
@@ -451,7 +412,7 @@
 
     <!-- ===== Countdown (1b) ===== -->
     <div id="state-countdown" hidden>
-      <div class="hero divided">
+      <div class="hero">
         <div class="eyebrow">Estimated activation</div>
         <h1 id="dateBig"></h1>
         <div class="substamp" id="stamp"></div>
@@ -497,15 +458,10 @@
           <div class="s">Blended, two windows</div>
         </div>
         <div class="tile">
-          <div class="l">Estimate Drift</div>
+          <div class="l">Estimate Spread</div>
           <div class="v" id="drift"></div>
-          <div class="s" id="driftNote"></div>
+          <div class="s">Between look-back windows</div>
         </div>
-      </div>
-
-      <div class="foot">
-        <span>Block data from BlockCypher · re-estimated every Bitcoin block</span>
-        <a href="../">All epochs</a>
       </div>
     </div>
 
@@ -531,7 +487,7 @@
         </div>
       </div>
 
-      <div class="tiles divided">
+      <div class="tiles">
         <div class="tile">
           <div class="l">Activation Height</div>
           <div class="v" id="act_height"></div>
@@ -547,11 +503,6 @@
           <div class="v">3.4</div>
           <div class="s" id="act_prev"></div>
         </div>
-      </div>
-
-      <div class="foot">
-        <span>Block data from BlockCypher</span>
-        <a href="../">All epochs</a>
       </div>
     </div>
 
@@ -575,12 +526,9 @@
           </div>
         </div>
       </div>
-
-      <div class="foot">
-        <span>Block data from BlockCypher</span>
-        <a href="../">All epochs</a>
-      </div>
     </div>
+
+    <div class="foot">Block data from BlockCypher</div>
   </main>
 
   <script>
@@ -589,30 +537,47 @@
     const API = "https://api.blockcypher.com/v1/btc/main";
     const POLL_MS = 300000;  // re-read the tip every 5 min; BlockCypher rate-limits anon callers
     const CACHE_KEY = "wen40:last-read";
-    const DRIFT_KEY = "wen40:revisions";
-    const DRIFT_WINDOW_MS = 86400000;
 
     const el = (id) => document.getElementById(id);
-    const int = (n) => n.toLocaleString("en-US");
-    const pad = (n) => String(Math.max(n, 0)).padStart(2, "0");
+    const nf = new Intl.NumberFormat("en-US");
+    const int = (n) => nf.format(n);
+    const pad = (n) => String(n).padStart(2, "0");
 
-    const UTC = { timeZone: "UTC" };
-    const fDate = new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric", year: "numeric", ...UTC });
-    const fWeek = new Intl.DateTimeFormat("en-US", { weekday: "long", ...UTC });
-    const fTime = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, ...UTC });
-    const fShort = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", ...UTC });
+    // Dates and times render in the visitor's own timezone. UTC is kept alongside
+    // the local time because that is how a fork time gets quoted everywhere else —
+    // and dropped when the visitor is already on UTC, so it never reads twice.
+    const fDate = new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric", year: "numeric" });
+    const fWeek = new Intl.DateTimeFormat("en-US", { weekday: "long" });
+    const fShort = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" });
+    const fLocal = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZoneName: "short" });
+    const fUTC = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "UTC" });
+
+    function clocks(d) {
+      const utc = `${fUTC.format(d)} UTC`;
+      return d.getTimezoneOffset() === 0 ? [utc] : [fLocal.format(d), utc];
+    }
 
     const STATES = ["loading", "countdown", "activated", "error"];
-    const show = (name) => STATES.forEach((s) => el("state-" + s).hidden = s !== name);
 
-    let eta = null;         // ms epoch of the projected activation
-    let lastHeight = null;  // tip height behind the estimate currently on screen
+    let eta = null;         // ms epoch of the projected activation, or null if we have none
+    let lastHeight = null;  // tip height behind whatever is currently on screen
+    let ticker = null;      // 1s countdown interval; only runs while the countdown is up
+
+    function show(name) {
+      STATES.forEach((s) => el("state-" + s).hidden = s !== name);
+      if (name === "countdown" && ticker === null) {
+        ticker = setInterval(tick, 1000);
+      } else if (name !== "countdown" && ticker !== null) {
+        clearInterval(ticker);
+        ticker = null;
+      }
+    }
 
     // --- last-good-read cache, so the unreachable state can say something true ---
 
-    function writeCache(tip) {
+    function writeCache(height) {
       try {
-        localStorage.setItem(CACHE_KEY, JSON.stringify({ height: tip.height, at: Date.now() }));
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ height, at: Date.now() }));
       } catch (e) { /* private mode, quota — the cache is a nicety */ }
     }
 
@@ -623,25 +588,6 @@
       } catch (e) {
         return null;
       }
-    }
-
-    // --- how much the projected date has moved, over the last 24h of readings ---
-
-    function recordRevision(eta) {
-      const cutoff = Date.now() - DRIFT_WINDOW_MS;
-      let log = [];
-      try {
-        const v = JSON.parse(localStorage.getItem(DRIFT_KEY));
-        if (Array.isArray(v)) log = v.filter((r) => r && r.at > cutoff && typeof r.eta === "number");
-      } catch (e) { /* start a fresh log */ }
-
-      if (!log.some((r) => r.eta === eta)) log.push({ at: Date.now(), eta });
-
-      try {
-        localStorage.setItem(DRIFT_KEY, JSON.stringify(log));
-      } catch (e) { /* private mode — drift just falls back to the window spread */ }
-
-      return log;
     }
 
     // Days once it is worth reading in days, otherwise something you can still see.
@@ -675,9 +621,14 @@
       return { height: j.height, time };
     }
 
+    const blockTimes = new Map();
+
     async function blockTime(height) {
-      const j = await getJSON(`${API}/blocks/${height}?txstart=1&limit=1`);
-      return Date.parse(j.time);
+      if (!blockTimes.has(height)) {
+        const j = await getJSON(`${API}/blocks/${height}?txstart=1&limit=1`);
+        blockTimes.set(height, Date.parse(j.time));
+      }
+      return blockTimes.get(height);
     }
 
     // Two look-back windows the same length as the distance still to go: one at 1x,
@@ -695,7 +646,14 @@
       const dB = bTime === null ? dA : (tip.time - bTime) / 4;
       const blended = (dA + dB) / 2;
 
-      return { remaining, dA, dB, blended, eta: tip.time + blended };
+      return {
+        remaining,
+        eta: tip.time + blended,
+        perBlockMs: blended / remaining,
+        // How far the two windows disagree. Purely chain-derived, so two people
+        // looking at the same tip always read the same number.
+        spreadMs: Math.abs(dA - dB) / 2,
+      };
     }
 
     // --- rendering ---
@@ -703,11 +661,11 @@
     function tick() {
       if (eta === null) return;
       const left = Math.max(eta - Date.now(), 0);
-      const d = Math.floor(left / 86400000);
+      const days = Math.floor(left / 86400000);
       const h = Math.floor((left % 86400000) / 3600000);
       const m = Math.floor((left % 3600000) / 60000);
       const s = Math.floor((left % 60000) / 1000);
-      el("countdown").textContent = `${d}d ${pad(h)}h ${pad(m)}m ${pad(s)}s`;
+      el("countdown").textContent = `${days}d ${pad(h)}h ${pad(m)}m ${pad(s)}s`;
     }
 
     function renderCountdown(tip, est) {
@@ -715,7 +673,7 @@
       const d = new Date(eta);
 
       el("dateBig").textContent = fDate.format(d);
-      el("stamp").textContent = `${fWeek.format(d)} · ${fTime.format(d)} UTC`;
+      el("stamp").textContent = [fWeek.format(d), ...clocks(d)].join(" · ");
       tick();
 
       el("remaining").textContent = `${int(est.remaining)} blocks to go`;
@@ -725,44 +683,30 @@
       el("fill").style.width = pct.toFixed(1) + "%";
 
       el("targetHeight").textContent = int(TARGET);
-      el("avgBlock").textContent = (est.blended / est.remaining / 60000).toFixed(2) + " min";
-
-      // Prefer real observed revisions; before there are two of them, fall back to
-      // how far the two look-back windows disagree. The sublabel says which it is.
-      const log = recordRevision(est.eta);
-      if (log.length > 1) {
-        const etas = log.map((r) => r.eta);
-        el("drift").textContent = spread((Math.max(...etas) - Math.min(...etas)) / 2);
-        el("driftNote").textContent = `Last 24 h · ${log.length} revisions`;
-      } else {
-        el("drift").textContent = spread(Math.abs(est.dA - est.dB) / 2);
-        el("driftNote").textContent = "Spread between windows";
-      }
+      el("avgBlock").textContent = (est.perBlockMs / 60000).toFixed(2) + " min";
+      el("drift").textContent = spread(est.spreadMs);
 
       show("countdown");
     }
 
     async function renderActivated(tip) {
-      eta = null;
       el("act_eyebrow").textContent = `bitcoin block ${int(TARGET)} reached`;
       el("act_height").textContent = int(TARGET);
       el("act_since").textContent = int(tip.height - TARGET);
       el("act_prev").textContent = `Ended at ${int(TARGET - 1)}`;
 
-      let t = null;
-      try {
-        t = await blockTime(TARGET);
-      } catch (e) { /* the height is what matters; the timestamp is a bonus */ }
+      // The height is what matters; the timestamp is a bonus.
+      const t = await blockTime(TARGET).catch(() => null);
+      const d = t === null ? null : new Date(t);
 
-      el("act_stamp").textContent = t
-        ? `${fWeek.format(t)} · ${fTime.format(t)} UTC · ${fShort.format(t)}`
+      el("act_stamp").textContent = d
+        ? [fWeek.format(d), ...clocks(d), fShort.format(d)].join(" · ")
         : "activation timestamp unavailable";
 
       show("activated");
     }
 
     function renderError() {
-      eta = null;
       const cached = readCache();
       el("err_last").textContent = cached
         ? `Last good read: ${int(cached.height)} · ${ago(cached.at)}`
@@ -773,21 +717,22 @@
     // --- loop ---
 
     async function refresh() {
+      let tip, est;
       try {
-        const tip = await getTip();
-        writeCache(tip);
-
-        if (tip.height >= TARGET) {
-          await renderActivated(tip);
-        } else if (tip.height !== lastHeight) {
-          renderCountdown(tip, await estimate(tip));
-        }
-        lastHeight = tip.height;
+        tip = await getTip();
+        writeCache(tip.height);
+        if (tip.height === lastHeight) return;   // chain has not moved; nothing to redo
+        est = tip.height < TARGET ? await estimate(tip) : null;
       } catch (e) {
         // Only fall back to the empty state if we never had a good read — a failed
         // poll should not blank out an estimate that is already on screen.
         if (lastHeight === null) renderError();
+        return;
       }
+
+      lastHeight = tip.height;
+      if (est) renderCountdown(tip, est);
+      else await renderActivated(tip);
     }
 
     el("retry").addEventListener("click", () => {
@@ -795,9 +740,15 @@
       refresh();
     });
 
+    // A backgrounded tab has nobody to show an estimate to; catch up when it returns.
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) refresh();
+    });
+
     refresh();
-    setInterval(tick, 1000);
-    setInterval(refresh, POLL_MS);
+    setInterval(() => {
+      if (!document.hidden) refresh();
+    }, POLL_MS);
   </script>
 </body>
 
