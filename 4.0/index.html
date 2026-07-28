@@ -5,98 +5,799 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Wen 4.0 HardFork?</title>
-  <link rel="stylesheet" href="../styles.css" />
+
+  <link rel="stylesheet" href="../assets/tokens.css" />
+
+  <script>
+    // Follow the OS theme. The design system keys dark mode off [data-theme].
+    (() => {
+      const q = matchMedia("(prefers-color-scheme: dark)");
+      const apply = () => document.documentElement.dataset.theme = q.matches ? "dark" : "light";
+      apply();
+      q.addEventListener("change", apply);
+    })();
+  </script>
 
   <style>
-    :root {
-      color-scheme: light dark;
-    }
+    * { box-sizing: border-box; }
+
+    [hidden] { display: none !important; }
 
     body {
-      color: light-dark(#000000, #ffffff);
-      background-color: light-dark(#ffffff, #000000);
-      padding: 0 12px;
-      /* sans-serif font? */
-      /* font-family: system-ui, sans-serif; */
+      margin: 0;
+      padding: 56px 24px;
+      font-family: var(--font-body);
+      background: var(--surface-fifth);
+      color: var(--text-primary);
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--stacks-500);
+      outline-offset: 2px;
+    }
+
+    @keyframes shim {
+      0%   { background-position: -100% 0; }
+      100% { background-position: 100% 0; }
+    }
+
+    /* ---------- Card shell ---------- */
+
+    .card {
+      max-width: 1040px;
+      margin: 0 auto;
+      background: var(--surface-tertiary);
+      border: 1px solid var(--border-primary);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .card > header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      height: 64px;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--border-secondary);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .brand img {
+      width: 18px;
+      height: 18px;
+    }
+
+    .brand span {
+      font-family: var(--font-display);
+      font-size: var(--fs-sm);
+      font-weight: var(--fw-medium);
+      letter-spacing: var(--ls-slight);
+    }
+
+    .card > header nav {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      font-size: var(--fs-sm);
+      white-space: nowrap;
+    }
+
+    .card > header nav a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 150ms ease-out;
+    }
+
+    .card > header nav a[aria-current] {
+      color: var(--text-primary);
+      font-weight: var(--fw-medium);
+    }
+
+    .card > header nav a:hover {
+      color: var(--text-interactive-hover);
+    }
+
+    /* ---------- Hero ---------- */
+
+    .hero {
+      padding: 56px 40px 44px;
+    }
+
+    .hero.divided {
+      border-bottom: 1px solid var(--border-secondary);
+    }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: var(--fs-xs);
+      font-weight: var(--fw-medium);
+      letter-spacing: 0.08em;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(40px, 8.4vw, 88px);
+      font-weight: var(--fw-regular);
+      letter-spacing: var(--ls-tight);
+      line-height: 0.96;
+      margin: 18px 0 0;
+      font-variant-numeric: tabular-nums;
+      text-wrap: balance;
+    }
+
+    .substamp {
+      font-family: var(--font-mono);
+      font-size: var(--fs-md);
+      color: var(--text-secondary);
+      margin-top: 16px;
+    }
+
+    .statusrow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .split {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 40px;
+      margin-top: 36px;
+      padding-top: 26px;
+      border-top: 1px solid var(--border-tertiary);
+    }
+
+    .countdown {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: clamp(28px, 4.7vw, 48px);
+      letter-spacing: var(--ls-semitight);
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+
+    .note {
+      font-size: var(--fs-xs);
+      color: var(--text-secondary);
+      margin-top: 10px;
+      max-width: 460px;
+      text-wrap: pretty;
+    }
+
+    .split .note:first-child {
+      margin-top: 0;
+    }
+
+    /* ---------- Buttons ---------- */
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      height: 44px;
+      padding: 0 20px;
+      border-radius: 10px;
+      font-family: var(--font-display);
+      font-size: var(--fs-md);
+      font-weight: var(--fw-medium);
+      white-space: nowrap;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 150ms ease-out;
+    }
+
+    .btn-primary {
+      border: none;
+      background: var(--stacks-500);
+      color: var(--black);
+      box-shadow: 0 8px 16px 0 rgba(252, 100, 50, 0.40);
+    }
+
+    .btn-primary:hover {
+      background: var(--stacks-600);
+    }
+
+    .btn-secondary {
+      border: 1px solid var(--border-primary);
+      background: var(--surface-fourth);
+      color: var(--text-primary);
+    }
+
+    .btn-secondary:hover {
+      background: var(--surface-secondary);
+    }
+
+    /* ---------- Progress ---------- */
+
+    .progress {
+      padding: 26px 40px;
+      border-bottom: 1px solid var(--border-secondary);
+    }
+
+    .progress .head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .progress .head .l {
+      font-family: var(--font-display);
+      font-size: var(--fs-md);
+      font-weight: var(--fw-medium);
+      letter-spacing: var(--ls-slight);
+    }
+
+    .progress .head .r {
+      font-family: var(--font-mono);
+      font-size: var(--fs-sm);
+      color: var(--text-secondary);
+      text-align: right;
+    }
+
+    .track {
+      position: relative;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--surface-secondary);
+      overflow: hidden;
+    }
+
+    .track .fill {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      background: var(--stacks-500);
+      transition: width 200ms ease-out;
+    }
+
+    .progress .ends {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      font-family: var(--font-mono);
+      font-size: var(--fs-xs);
+      color: var(--text-secondary);
+    }
+
+    .progress .ends .to {
+      color: var(--bitcoin-600);
+    }
+
+    /* ---------- Tiles ---------- */
+
+    .tiles {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      padding: 24px 40px 28px;
+    }
+
+    .tiles.divided {
+      border-top: 1px solid var(--border-secondary);
+    }
+
+    .tile {
+      background: var(--surface-tertiary);
+      border: 1px solid var(--border-secondary);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+    }
+
+    .tile .l {
+      font-size: var(--fs-xs);
+      font-weight: var(--fw-medium);
+      color: var(--text-secondary);
+    }
+
+    .tile .v {
+      font-family: var(--font-mono);
+      font-size: var(--fs-xl);
+      letter-spacing: var(--ls-semitight);
+      margin-top: 6px;
+    }
+
+    .tile .s {
+      font-size: var(--fs-xs);
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    /* ---------- Footer ---------- */
+
+    .foot {
+      border-top: 1px solid var(--border-secondary);
+      padding: 16px 40px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: var(--fs-xs);
+      color: var(--text-secondary);
+    }
+
+    .foot a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 150ms ease-out;
+    }
+
+    .foot a:hover {
+      color: var(--text-interactive-hover);
+    }
+
+    /* ---------- Badges ---------- */
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 24px;
+      padding: 0 8px;
+      border-radius: var(--radius-sm);
+      font-size: var(--fs-xs);
+      font-weight: var(--fw-medium);
+    }
+
+    .badge .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .badge-ok  { background: var(--green-100); color: var(--green-600); }
+    .badge-err { background: var(--red-100);   color: var(--red-600); }
+
+    /* ---------- Skeleton ---------- */
+
+    .sk {
+      border-radius: var(--radius-xs);
+      background: linear-gradient(90deg, var(--surface-primary), var(--surface-secondary), var(--surface-primary));
+      background-size: 200% 100%;
+      animation: shim 1.4s ease-in-out infinite;
+    }
+
+    .loadnote {
+      font-family: var(--font-mono);
+      font-size: var(--fs-xs);
+      color: var(--text-tertiary);
+      margin-top: 14px;
+    }
+
+    /* ---------- Responsive ---------- */
+
+    @media (max-width: 860px) {
+      body { padding: 24px 16px; }
+      .card > header { padding: 0 16px; }
+      .hero { padding: 36px 24px 28px; }
+      .progress { padding: 20px 24px; }
+      .tiles { grid-template-columns: 1fr; padding: 20px 24px 24px; }
+      .foot { padding: 16px 24px; flex-direction: column; gap: 6px; }
+      .split { flex-direction: column; align-items: stretch; gap: 26px; }
+      .progress .head { flex-direction: column; align-items: flex-start; gap: 4px; }
+      .progress .head .r { text-align: left; }
+      .actions { flex-wrap: wrap; }
+      .btn { flex: 1 1 auto; justify-content: center; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; }
     }
   </style>
 </head>
 
 <body>
-  <h1>Wen 4.0 HardFork?</h1>
+  <main class="card">
+    <header>
+      <div class="brand">
+        <img src="../assets/stx-glyph.svg" alt="" />
+        <span>Wen 4.0?</span>
+      </div>
+      <nav>
+        <a href="./" aria-current="page">Epoch 4.0</a>
+        <a href="../">Past epochs</a>
+      </nav>
+    </header>
 
-  <div id="main" hidden>
-    <p>Current block is <span id="current_block"></span>.</p>
-    <p>
-      A first-order estimation of 4.0 epoch start is:
-      <span id="expected_date"></span>.
-    </p>
-    <p></p>
-    <p>
-      Stacks 4.0 epoch start (bitcoin block <span id="block_target"></span>)
-      is <span id="blocks_to_go"></span> blocks away.
-    </p>
-    <p></p>
-    <p>
-      That many blocks ago was height = <span id="used_block"></span> which
-      occurred at <span id="used_block_time"></span>,
-      <span id="time_ago"></span> hours ago.
-    </p>
-  </div>
+    <!-- ===== Loading ===== -->
+    <div id="state-loading">
+      <div class="hero">
+        <div class="sk" style="height: 12px; width: min(180px, 55%);"></div>
+        <div style="margin-top: 20px;">
+          <div class="sk" style="height: 72px; width: min(520px, 92%); border-radius: var(--radius-sm);"></div>
+        </div>
+        <div style="margin-top: 20px;">
+          <div class="sk" style="height: 14px; width: min(260px, 70%);"></div>
+        </div>
+        <div class="split">
+          <div style="flex: 1;">
+            <div class="sk" style="height: 40px; width: min(340px, 80%); border-radius: var(--radius-sm);"></div>
+            <div style="margin-top: 14px;">
+              <div class="sk" style="height: 10px; width: min(420px, 95%);"></div>
+            </div>
+            <div style="margin-top: 6px;">
+              <div class="sk" style="height: 10px; width: min(300px, 75%);"></div>
+            </div>
+          </div>
+          <div class="actions">
+            <div class="sk" style="height: 44px; width: 160px; border-radius: var(--radius-md);"></div>
+            <div class="sk" style="height: 44px; width: 150px; border-radius: var(--radius-md);"></div>
+          </div>
+        </div>
+      </div>
+      <div style="padding: 26px 40px; border-top: 1px solid var(--border-secondary);">
+        <div class="sk" style="height: 10px; width: 100%;"></div>
+        <div class="loadnote">reading the bitcoin tip…</div>
+      </div>
+    </div>
+
+    <!-- ===== Countdown (1b) ===== -->
+    <div id="state-countdown" hidden>
+      <div class="hero divided">
+        <div class="eyebrow">Estimated activation</div>
+        <h1 id="dateBig"></h1>
+        <div class="substamp" id="stamp"></div>
+
+        <div class="split">
+          <div>
+            <span class="countdown" id="countdown"></span>
+            <div class="note">
+              Projected from how fast Bitcoin has actually been mining lately.
+              Re-estimated every block, so that the date moves as the hashrate does.
+            </div>
+          </div>
+          <div class="actions">
+            <a class="btn btn-primary" href="https://github.com/stacks-network/stacks-core/releases" rel="noreferrer">Release Notes</a>
+            <a class="btn btn-secondary" href="https://github.com/stacksgov/sips/blob/main/sips/sip-045/sip-045-pox-5-bitcoin-staking.md" rel="noreferrer">Read SIP-045</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="progress">
+        <div class="head">
+          <div class="l" id="remaining"></div>
+          <div class="r" id="range"></div>
+        </div>
+        <div class="track">
+          <div class="fill" id="fill"></div>
+        </div>
+        <div class="ends">
+          <span>epoch 3.4</span>
+          <span class="to">epoch 4.0</span>
+        </div>
+      </div>
+
+      <div class="tiles">
+        <div class="tile">
+          <div class="l">Target Height</div>
+          <div class="v" id="targetHeight"></div>
+          <div class="s">Epoch 4.0 start</div>
+        </div>
+        <div class="tile">
+          <div class="l">Avg Block Time</div>
+          <div class="v" id="avgBlock"></div>
+          <div class="s">Blended, two windows</div>
+        </div>
+        <div class="tile">
+          <div class="l">Estimate Drift</div>
+          <div class="v" id="drift"></div>
+          <div class="s" id="driftNote"></div>
+        </div>
+      </div>
+
+      <div class="foot">
+        <span>Block data from BlockCypher · re-estimated every Bitcoin block</span>
+        <a href="../">All epochs</a>
+      </div>
+    </div>
+
+    <!-- ===== Activated ===== -->
+    <div id="state-activated" hidden>
+      <div class="hero">
+        <div class="statusrow">
+          <span class="badge badge-ok"><span class="dot"></span>Activated</span>
+          <span class="eyebrow" id="act_eyebrow"></span>
+        </div>
+        <h1>Epoch 4.0 is live</h1>
+        <div class="substamp" id="act_stamp"></div>
+
+        <div class="split">
+          <div class="note">
+            The fork is behind us. Nodes still on a pre-4.0 release have stalled and
+            need to upgrade before they can follow the chain again.
+          </div>
+          <div class="actions">
+            <a class="btn btn-primary" href="https://github.com/stacksgov/sips/blob/main/sips/sip-045/sip-045-pox-5-bitcoin-staking.md" rel="noreferrer">What Changed</a>
+            <a class="btn btn-secondary" href="https://explorer.hiro.so/" rel="noreferrer">Open Explorer</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="tiles divided">
+        <div class="tile">
+          <div class="l">Activation Height</div>
+          <div class="v" id="act_height"></div>
+          <div class="s">Bitcoin</div>
+        </div>
+        <div class="tile">
+          <div class="l">Blocks Since</div>
+          <div class="v" id="act_since"></div>
+          <div class="s">Bitcoin blocks mined</div>
+        </div>
+        <div class="tile">
+          <div class="l">Previous Epoch</div>
+          <div class="v">3.4</div>
+          <div class="s" id="act_prev"></div>
+        </div>
+      </div>
+
+      <div class="foot">
+        <span>Block data from BlockCypher</span>
+        <a href="../">All epochs</a>
+      </div>
+    </div>
+
+    <!-- ===== Unreachable ===== -->
+    <div id="state-error" hidden>
+      <div class="hero">
+        <div class="statusrow">
+          <span class="badge badge-err"><span class="dot"></span>No data</span>
+          <span class="eyebrow">bitcoin api unreachable</span>
+        </div>
+        <h1>No estimate</h1>
+        <div class="substamp" id="err_last"></div>
+
+        <div class="split">
+          <div class="note">
+            The projection needs a live Bitcoin tip height and the API did not
+            respond. This is usually transient.
+          </div>
+          <div class="actions">
+            <button type="button" class="btn btn-secondary" id="retry">Retry</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="foot">
+        <span>Block data from BlockCypher</span>
+        <a href="../">All epochs</a>
+      </div>
+    </div>
+  </main>
 
   <script>
-    const HEIGHT_4_0 = 960230;
-    const mainEndpoint = "https://api.blockcypher.com/v1/btc/main";
+    const TARGET = 960230;   // epoch 4.0 activation height (bitcoin)
+    const ANCHOR = 943333;   // epoch 3.4 activation height — origin of the progress bar
+    const API = "https://api.blockcypher.com/v1/btc/main";
+    const POLL_MS = 300000;  // re-read the tip every 5 min; BlockCypher rate-limits anon callers
+    const CACHE_KEY = "wen40:last-read";
+    const DRIFT_KEY = "wen40:revisions";
+    const DRIFT_WINDOW_MS = 86400000;
 
-    async function main() {
-      const current = await (await fetch(mainEndpoint)).json();
-      const current_height = current.height;
-      const current_date = new Date(current.time);
+    const el = (id) => document.getElementById(id);
+    const int = (n) => n.toLocaleString("en-US");
+    const pad = (n) => String(Math.max(n, 0)).padStart(2, "0");
 
-      if (current_height >= HEIGHT_4_0) {
-        document.getElementById("main").innerHTML = `Stacks 4.0 epoch height reached!`;
+    const UTC = { timeZone: "UTC" };
+    const fDate = new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric", year: "numeric", ...UTC });
+    const fWeek = new Intl.DateTimeFormat("en-US", { weekday: "long", ...UTC });
+    const fTime = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, ...UTC });
+    const fShort = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", ...UTC });
+
+    const STATES = ["loading", "countdown", "activated", "error"];
+    const show = (name) => STATES.forEach((s) => el("state-" + s).hidden = s !== name);
+
+    let eta = null;         // ms epoch of the projected activation
+    let lastHeight = null;  // tip height behind the estimate currently on screen
+
+    // --- last-good-read cache, so the unreachable state can say something true ---
+
+    function writeCache(tip) {
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ height: tip.height, at: Date.now() }));
+      } catch (e) { /* private mode, quota — the cache is a nicety */ }
+    }
+
+    function readCache() {
+      try {
+        const v = JSON.parse(localStorage.getItem(CACHE_KEY));
+        return v && typeof v.height === "number" && typeof v.at === "number" ? v : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // --- how much the projected date has moved, over the last 24h of readings ---
+
+    function recordRevision(eta) {
+      const cutoff = Date.now() - DRIFT_WINDOW_MS;
+      let log = [];
+      try {
+        const v = JSON.parse(localStorage.getItem(DRIFT_KEY));
+        if (Array.isArray(v)) log = v.filter((r) => r && r.at > cutoff && typeof r.eta === "number");
+      } catch (e) { /* start a fresh log */ }
+
+      if (!log.some((r) => r.eta === eta)) log.push({ at: Date.now(), eta });
+
+      try {
+        localStorage.setItem(DRIFT_KEY, JSON.stringify(log));
+      } catch (e) { /* private mode — drift just falls back to the window spread */ }
+
+      return log;
+    }
+
+    // Days once it is worth reading in days, otherwise something you can still see.
+    function spread(ms) {
+      if (ms >= 0.1 * 86400000) return "±" + (ms / 86400000).toFixed(1) + " d";
+      if (ms >= 3600000) return "±" + (ms / 3600000).toFixed(1) + " h";
+      return "±" + Math.round(ms / 60000) + " min";
+    }
+
+    function ago(ts) {
+      const min = Math.max(Math.round((Date.now() - ts) / 60000), 0);
+      if (min < 1) return "moments ago";
+      if (min < 60) return `${min} min ago`;
+      const hr = Math.round(min / 60);
+      return hr < 24 ? `${hr} h ago` : `${Math.round(hr / 24)} d ago`;
+    }
+
+    // --- fetching ---
+
+    async function getJSON(url) {
+      const r = await fetch(url);
+      if (!r.ok) throw new Error("http " + r.status);
+      return r.json();
+    }
+
+    async function getTip() {
+      const j = await getJSON(API);
+      if (typeof j.height !== "number") throw new Error("unexpected shape");
+      const time = Date.parse(j.time);
+      if (!Number.isFinite(time)) throw new Error("unexpected shape");
+      return { height: j.height, time };
+    }
+
+    async function blockTime(height) {
+      const j = await getJSON(`${API}/blocks/${height}?txstart=1&limit=1`);
+      return Date.parse(j.time);
+    }
+
+    // Two look-back windows the same length as the distance still to go: one at 1x,
+    // one at 4x normalised back down. Averaging them damps short-term hashrate noise.
+    async function estimate(tip) {
+      const remaining = TARGET - tip.height;
+      const wide = tip.height - 4 * remaining;
+
+      const [aTime, bTime] = await Promise.all([
+        blockTime(tip.height - remaining),
+        wide > 0 ? blockTime(wide) : Promise.resolve(null),
+      ]);
+
+      const dA = tip.time - aTime;
+      const dB = bTime === null ? dA : (tip.time - bTime) / 4;
+      const blended = (dA + dB) / 2;
+
+      return { remaining, dA, dB, blended, eta: tip.time + blended };
+    }
+
+    // --- rendering ---
+
+    function tick() {
+      if (eta === null) return;
+      const left = Math.max(eta - Date.now(), 0);
+      const d = Math.floor(left / 86400000);
+      const h = Math.floor((left % 86400000) / 3600000);
+      const m = Math.floor((left % 3600000) / 60000);
+      const s = Math.floor((left % 60000) / 1000);
+      el("countdown").textContent = `${d}d ${pad(h)}h ${pad(m)}m ${pad(s)}s`;
+    }
+
+    function renderCountdown(tip, est) {
+      eta = est.eta;
+      const d = new Date(eta);
+
+      el("dateBig").textContent = fDate.format(d);
+      el("stamp").textContent = `${fWeek.format(d)} · ${fTime.format(d)} UTC`;
+      tick();
+
+      el("remaining").textContent = `${int(est.remaining)} blocks to go`;
+      el("range").textContent = `bitcoin height ${int(ANCHOR)} → ${int(TARGET)}`;
+
+      const pct = Math.min(Math.max((tip.height - ANCHOR) / (TARGET - ANCHOR), 0), 1) * 100;
+      el("fill").style.width = pct.toFixed(1) + "%";
+
+      el("targetHeight").textContent = int(TARGET);
+      el("avgBlock").textContent = (est.blended / est.remaining / 60000).toFixed(2) + " min";
+
+      // Prefer real observed revisions; before there are two of them, fall back to
+      // how far the two look-back windows disagree. The sublabel says which it is.
+      const log = recordRevision(est.eta);
+      if (log.length > 1) {
+        const etas = log.map((r) => r.eta);
+        el("drift").textContent = spread((Math.max(...etas) - Math.min(...etas)) / 2);
+        el("driftNote").textContent = `Last 24 h · ${log.length} revisions`;
       } else {
-        const approximation_height =
-          current_height - (HEIGHT_4_0 - current_height);
-        const second_approximation_height =
-          current_height - 4 * (HEIGHT_4_0 - current_height);
-
-        // fire off the two requests in parallel
-        const [prior, second_prior] = await Promise.all([
-          fetch(`${mainEndpoint}/blocks/${approximation_height}?txstart=1&limit=1`).then(r => r.json()),
-          fetch(`${mainEndpoint}/blocks/${second_approximation_height}?txstart=1&limit=1`).then(r => r.json()),
-        ]);
-
-        const prior_date = new Date(prior.time);
-        const second_prior_date = new Date(second_prior.time);
-
-        const seconds_delta = current_date - prior_date;
-        const second_seconds_delta = (current_date - second_prior_date) / 4;
-        const expected_seconds_delta =
-          (seconds_delta + second_seconds_delta) / 2;
-
-        const expected_date = new Date(
-          current_date.getTime() + expected_seconds_delta,
-        );
-
-        document.getElementById("block_target").innerHTML = `<b>${HEIGHT_4_0}</b>`;
-        document.getElementById("current_block").innerHTML = `<b>${current_height}</b>`;
-
-        document.getElementById("expected_date").innerHTML = `<b>${expected_date}</b>`;
-        document.getElementById("blocks_to_go").innerHTML = `<b>${HEIGHT_4_0 - current_height}</b>`;
-        document.getElementById("used_block").innerHTML = `<b>${approximation_height}</b>`;
-        document.getElementById("used_block_time").innerHTML = `<b>${prior_date}</b>`;
-        document.getElementById("time_ago").innerHTML = `<b>${Math.floor(seconds_delta / 3600.0 / 10) / 100.0}</b>`;
+        el("drift").textContent = spread(Math.abs(est.dA - est.dB) / 2);
+        el("driftNote").textContent = "Spread between windows";
       }
 
-      // handle loading state by just hiding/showing #main
-      document.getElementById("main").removeAttribute("hidden");
+      show("countdown");
     }
-    main().catch(() => {
-      document.getElementById("main").innerHTML =
-        "Failed to fetch block data. Please try again later.";
-      document.getElementById("main").removeAttribute("hidden");
-    })
+
+    async function renderActivated(tip) {
+      eta = null;
+      el("act_eyebrow").textContent = `bitcoin block ${int(TARGET)} reached`;
+      el("act_height").textContent = int(TARGET);
+      el("act_since").textContent = int(tip.height - TARGET);
+      el("act_prev").textContent = `Ended at ${int(TARGET - 1)}`;
+
+      let t = null;
+      try {
+        t = await blockTime(TARGET);
+      } catch (e) { /* the height is what matters; the timestamp is a bonus */ }
+
+      el("act_stamp").textContent = t
+        ? `${fWeek.format(t)} · ${fTime.format(t)} UTC · ${fShort.format(t)}`
+        : "activation timestamp unavailable";
+
+      show("activated");
+    }
+
+    function renderError() {
+      eta = null;
+      const cached = readCache();
+      el("err_last").textContent = cached
+        ? `Last good read: ${int(cached.height)} · ${ago(cached.at)}`
+        : "No previous read on this device";
+      show("error");
+    }
+
+    // --- loop ---
+
+    async function refresh() {
+      try {
+        const tip = await getTip();
+        writeCache(tip);
+
+        if (tip.height >= TARGET) {
+          await renderActivated(tip);
+        } else if (tip.height !== lastHeight) {
+          renderCountdown(tip, await estimate(tip));
+        }
+        lastHeight = tip.height;
+      } catch (e) {
+        // Only fall back to the empty state if we never had a good read — a failed
+        // poll should not blank out an estimate that is already on screen.
+        if (lastHeight === null) renderError();
+      }
+    }
+
+    el("retry").addEventListener("click", () => {
+      show("loading");
+      refresh();
+    });
+
+    refresh();
+    setInterval(tick, 1000);
+    setInterval(refresh, POLL_MS);
   </script>
 </body>
 
