@@ -670,7 +670,9 @@
     async function getTip() {
       const j = await getJSON(API);
       if (typeof j.height !== "number") throw new Error("unexpected shape");
-      return { height: j.height, time: Date.parse(j.time) };
+      const time = Date.parse(j.time);
+      if (!Number.isFinite(time)) throw new Error("unexpected shape");
+      return { height: j.height, time };
     }
 
     async function blockTime(height) {
